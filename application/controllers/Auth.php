@@ -132,13 +132,39 @@ class Auth extends CI_Controller
     public function update($id)
     {
         $this->load->library('form_validation', NULL, 'fv');
-        
+
         $this->fv->set_rules('firstname', 'First Name', 'required');
         $this->fv->set_rules('lastname', 'Last Name', 'required');
         $this->fv->set_rules('email', 'Email', 'required|valid_email');
         $this->fv->set_rules('phone', 'Phone No.', 'required');
         $this->fv->set_rules('password', 'Password', 'required');
-        
+        // $this->fv->set_rules('image', 'Image', 'required');
+        // if ($this->fv->run()) {
+        //     if ($_FILES["image"]['name'] != " ") {
+        //         $config['upload_path'] = './image/';
+        //         $config['allowed_types'] = 'gif|jpg|png';
+        //         $this->load->library('upload', $config);
+        //         if ($this->upload->do_upload('image')) {
+        //             $upload_data = $this->upload->data();
+        //             $image_name = $upload_data['file_name'];
+        //         }
+        //     } else {
+        //         $image_name = $this->input->post('old_image');
+        //     }
+        //     $updateArray = array(
+        //         'firstname' => $this->input->post('firstname'),
+        //         'lastname' => $this->input->post('lastname'),
+        //         'email' => $this->input->post('email'),
+        //         'phone' => $this->input->post('phone'),
+        //         'password' => password_hash($this->input->post('password'), PASSWORD_BCRYPT),
+        //         'filename' => $image_name
+        //     );
+        //     $this->auth_model->updateUser($updateArray, $id);
+        //     $this->session->set_flashdata('msg', 'Your account has been updated successfully.');
+        //     redirect(base_url() . 'auth/edit/' . $id);
+        // } else {
+        //     $this->load->view('edit', $id);
+        // }
         if ($this->fv->run())
         {
             $old_filename = $this->input->post('old_image');
@@ -146,6 +172,18 @@ class Auth extends CI_Controller
 
             if ($new_filename == false) {
                 $update_filename = $old_filename;
+                $updateArray = array(
+                    'firstname' => $this->input->post('firstname'),
+                    'lastname' => $this->input->post('lastname'),
+                    'email' => $this->input->post('email'),
+                    'phone' => $this->input->post('phone'),
+                    'password' => password_hash($this->input->post('password'), PASSWORD_BCRYPT),
+                );
+                $this->auth_model->updateUser($updateArray, $id);
+                
+                $this->session->set_flashdata('msg', 'Your account has been updated successfully.');
+                redirect(base_url() . 'auth/edit/' . $id);
+            
             }
             else
             {
@@ -155,13 +193,11 @@ class Auth extends CI_Controller
                 $config['file_name'] = $update_filename;
 
                 $this->load->library('upload', $config);
-
                 if ($this->upload->do_upload('image')) {
                     if (file_exists("./image/" . $old_filename)) {
                         unlink("./image/".$old_filename);
                     }
                 }
-            }
                 $updateArray = array(
                     'firstname' => $this->input->post('firstname'),
                     'lastname' => $this->input->post('lastname'),
@@ -174,20 +210,22 @@ class Auth extends CI_Controller
                 
                 $this->session->set_flashdata('msg', 'Your account has been updated successfully.');
                 redirect(base_url() . 'auth/edit/' . $id);
+            }
         } 
         else
         {
-            redirect(base_url() . 'auth/edit/' . $id);
+            $data['id'] = $id;
+            $data['users'] = $this->session->userdata('user');
+            $this->load->view('edit', $data);
         }
     }
 
     public function delete($id)
     {
-        if($this->auth_model->checkUserImage($id))
-        {
+        if ($this->auth_model->checkUserImage($id)) {
             $data = $this->auth_model->checkUserImage($id);
-            if(file_exists("./image/".$data->filename)){
-                unlink("./image/".$data->filename);
+            if (file_exists("./image/" . $data->filename)) {
+                unlink("./image/" . $data->filename);
             }
             $this->auth_model->deleteUser($id);
             $this->session->set_flashdata('msg', 'User deleted successfully.');
