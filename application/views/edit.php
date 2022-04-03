@@ -20,6 +20,7 @@
                         <?= $this->session->flashdata('msg'); ?>
                     </div>
                 <?php endif; ?>
+
                 <div class="card">
                     <div class="card-header">
                         <h3>Edit Users
