@@ -53,7 +53,7 @@ $route['default_controller'] = 'auth/login';
 $route['404_override'] = '';
 $route['translate_uri_dashes'] = FALSE;
 
-// $route['auth']['GET'] = 'auth/login';
-$route['auth/edit/(:any)']['GET'] = 'auth/edit/$1';
-// $route['auth/update/(:any)']['POST'] = 'auth/update/$1';
-// $route['auth/register']['POST'] = 'auth/register';
+$route['auth'] = 'auth/login';
+$route['auth/edit/(:any)']= 'auth/edit/$1';
+$route['auth/update/(:any)'] = 'auth/update/$1';
+$route['auth/register'] = 'auth/register';
